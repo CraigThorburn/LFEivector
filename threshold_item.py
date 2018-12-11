@@ -65,7 +65,7 @@ def threshold_item(item_file, output_file, columns,
 #                lower_threshold=lower_threshold,
 #                upper_threshold=upper_threshold)
 
-root='/scratch1/users/thomas/perceptual-tuning-data/eval/abx/'
+root='/fs/clip-realspeech/projects/lfe/data/abx/items/'
 corpora=['BUC','CSJ', 'WSJ', 'GPJ']
 
 
