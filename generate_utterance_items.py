@@ -68,24 +68,6 @@ def generate_utterance_item(root, segments_file, text_file, utt2spk_file,
                 
     print('done')
             
-            
-
-
-            
-            
-    
-            
-            
-            
-        
-
-        
-
-        
-        
-
-
-
 # Testing
 root = 'D:\\files\\research\\projects\\lf\ivector\\test'
 segments_file = 'segments.txt'
