@@ -5,6 +5,14 @@
 Created on Mon May 6 15:05:00 2019
 @author: Craig Thorburn
 """
+## PARAMETERS
+corpus = 'WSJ'
+matched = 'GPJ'
+sample_size = 12
+rejection = False
+
+# CODE
+
 import codecs
 import os
 import numpy as np
@@ -13,8 +21,8 @@ from nltk.tokenize import word_tokenize
 
 functionwords = stopwords.words('english')
 
-def generate_utterance_item(root, segments_file, text_file, utt2spk_file, 
-                            output_file, sample_size = 12, rejection = False):
+def generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file, 
+                            output_folder, output_file, sample_size = 12, rejection = True):
     """
     """
     os.chdir(root)
@@ -69,21 +77,34 @@ def generate_utterance_item(root, segments_file, text_file, utt2spk_file,
     print('done')
             
 # Testing
-root = 'D:\\files\\research\\projects\\lf\ivector\\test'
+# root = 'D:\\files\\research\\projects\\lf\ivector\\test'
+# segments_file = 'segments.txt'
+# text_file = 'text.txt'
+# utt2spk_file = 'utt2spk.txt'
+# output_file = 'test.item'
+# generate_utterance_item(root, segments_file, text_file, utt2spk_file, 
+#                            output_file)
+
+
+input_folder = '/fs/clip-realspeech/corpora/spock-format/' + corpus + '/' + matched + '_matched_data_train/'
+output_folder = '/fs/clip-realspeech/projects/lfe/eval/utt_abx/items/'
+if rejection:
+    rejection_name = 'rej'
+else:
+    rejection_name = 'norej'
+output_file = corpus + '_sample'+sample+'_'+rejection_name+'.item
 segments_file = 'segments.txt'
 text_file = 'text.txt'
 utt2spk_file = 'utt2spk.txt'
-output_file = 'test.item'
-generate_utterance_item(root, segments_file, text_file, utt2spk_file, 
-                            output_file)
-'''
-root='/fs/clip-realspeech/projects/lfe/data/abx/items/'
-corpora=['BUC','CSJ', 'WSJ', 'GPJ']
 
-for corpus in corpora:
+generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file, 
+                            output_folder, output_file, sample_size, rejection):
+
+    
+
+    
     item_file=root+corpus+'.item'
-    lower_threshold = 2
-    upper_threshold = 5
+
     out_file = root + corpus + '_threshold_' + str(lower_threshold) + '_' + str(upper_threshold) + '.item'
     columns = ['phone', 'prev-phone', 'next-phone', 'speaker']  # ['phone', 'talker']
     print "****"+item_file
