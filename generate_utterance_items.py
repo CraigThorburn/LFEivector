@@ -24,7 +24,8 @@ from nltk.tokenize import word_tokenize
 functionwords = stopwords.words('english')
 
 def generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file, 
-                            output_folder, output_file, sample_size = 12, rejection = True):
+                            output_folder, output_file, sample_size = 12, rejection = True,
+                            max_attempts = 100):
     """
     """
     os.chdir(input_folder)
@@ -71,7 +72,7 @@ def generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file
         for speaker in speaker_dict.keys():
             utts=speaker_dict[speaker]
             if len(utts)<sample_size:
-                print('Not enough utterances to sample for speaker: '+speaker)
+                print('Not enough utterances to sample for speaker '+speaker)
                 err+=1
                 next
             elif not rejection:
@@ -80,6 +81,25 @@ def generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file
                     to_write = [utts[ind][0], utts[ind][1], utts[ind][2], utts[ind][3]]
                     out.write(u" ".join([str(e) for e in to_write]) + u"\n")
             else:
+                if len(utts)<sample_size*1.5:
+                    print('Warning, few utterances for speaker '+speaker+
+                          '. May not be able to sample.')
+                sampling_succesful = False
+                samples_attempted = 0
+                while not sampling_succesful:
+                    utt_ind = np.random.choice(len(utts), sample_size, replace = False)
+                    full_text = []
+                    for ind in utt_ind:
+                        full_text += segment_text
+                    if len(set(full_text))==len(full_text):
+                        sampling_succesful = True
+                    elif samples_attempted < max_attempts:
+                        samples_attempted += 1
+                    else:
+                        print('Sampling failed for speaker '+speaker+' after '+
+                              str(samples_attempted)+' attempts.')
+                        break
+                
                 raise AssertionError('Rejection sampling not implemented')
     print('total '+str(len(speaker_dict.keys()))+' speakers for corpus')   
     if err > 0:
