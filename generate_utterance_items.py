@@ -6,10 +6,12 @@ Created on Mon May 6 15:05:00 2019
 @author: Craig Thorburn
 """
 ## PARAMETERS
-corpus = 'CSJ'
-matched = 'BUC'
-min_length = 3
-max_length = 100
+corpus = 'WSJ'
+matched = 'GPJ'
+min_length = 2
+max_length = 5
+allowed_overlap = 20
+max_attempts = 1
 sample_size = 20
 rejection = False
 
@@ -24,7 +26,7 @@ from nltk.tokenize import word_tokenize
 functionwords = stopwords.words('english')
 
 def generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file, 
-                            output_folder, output_file, sample_size = 12, rejection = True,
+                            output_folder, output_file, allowed_overlap, sample_size = 12, rejection = True,
                             max_attempts = 100):
     """
     """
@@ -37,6 +39,7 @@ def generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file
     for l in lines:
         t = l.split(None, 1)
         text[t[0]] = t[1]
+    print('text file loaded')
 
     with codecs.open(utt2spk_file, mode='r', encoding='UTF-8') as inp:
         lines = inp.read().splitlines()
@@ -44,12 +47,13 @@ def generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file
     for l in lines:
         u = l.split(None, 1)
         utt2spk[u[0]] = u[1]
+    print('utt2spk file loaded')
                 
     with codecs.open(segments_file, mode='r', encoding='UTF-8') as inp:
         lines = inp.read().splitlines()
+    print('segments file loaded')
+    speaker_dict = {} 
     
-
-    speaker_dict = {}
     for l in lines:
         segment = l.split()
         segment_name = segment[0]
@@ -65,10 +69,12 @@ def generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file
             speaker_dict[speaker].append([segment_name, onset, offset, speaker, segment_text])
         else:
             speaker_dict[speaker] = [[segment_name, onset, offset, speaker, segment_text]]
-                
+    
+    print('segments parsed')
     with codecs.open(output_folder+output_file, mode='w', encoding='UTF-8') as out:
         err=0
         out.write(item_header)
+        overlap_total = 0
         for speaker in speaker_dict.keys():
             utts=speaker_dict[speaker]
             if len(utts)<sample_size:
@@ -90,20 +96,32 @@ def generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file
                     utt_ind = np.random.choice(len(utts), sample_size, replace = False)
                     full_text = []
                     for ind in utt_ind:
-                        full_text += segment_text
-                    if len(set(full_text))==len(full_text):
+                        full_text += utts[ind][4]
+                    print(full_text)
+                    print(len(full_text))
+                    print(len(set(full_text)))
+                    overlap = len(full_text)-len(set(full_text))
+                    if overlap < allowed_overlap:
                         sampling_succesful = True
+                        overlap_total+=overlap
+                        print('Sampling successful for speaker '+speaker+' after '+
+                              str(samples_attempted)+' attempts.  Overlap is '+str(overlap))
+                        for ind in utt_ind:
+                            to_write = [utts[ind][0], utts[ind][1], utts[ind][2], utts[ind][3]]
+                            out.write(u" ".join([str(e) for e in to_write]) + u"\n")                       
                     elif samples_attempted < max_attempts:
                         samples_attempted += 1
                     else:
                         print('Sampling failed for speaker '+speaker+' after '+
                               str(samples_attempted)+' attempts.')
+                        err+=1
                         break
                 
-                raise AssertionError('Rejection sampling not implemented')
+                
     print('total '+str(len(speaker_dict.keys()))+' speakers for corpus')   
     if err > 0:
           print(str(err)+' speakers failed')
+    print('average overlap is '+str(float(overlap_total)/(len(speaker_dict.keys())-err)))
     print('done')
             
 # Testing
@@ -128,6 +146,7 @@ text_file = 'text.txt'
 utt2spk_file = 'utt2spk.txt'
 
 generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file, 
-                            output_folder, output_file, sample_size, rejection)
+                            output_folder, output_file, 
+                        allowed_overlap, sample_size, rejection, max_attempts, )
 
 
