@@ -6,9 +6,9 @@ Created on Mon May 6 15:05:00 2019
 @author: Craig Thorburn
 """
 ## PARAMETERS
-train_corpus = 'WSJ'
+train_corpus = 'GPJ'
 test_corpus='WSJ'
-matched = 'GPJ'
+matched = 'BUC'
 
 '''
 
@@ -36,7 +36,7 @@ def generate_utterance_item(input_folder, output_name, utt2spk_file = None,
     """
     os.chdir(input_folder)    
     ark_filenames = []
-    for filename in os.listdir():
+    for filename in os.listdir('.'):
         if filename.endswith(".ark") and filename.startswith("ivector"): 
             ark_filenames.append(filename)         
 
@@ -58,17 +58,17 @@ def generate_utterance_item(input_folder, output_name, utt2spk_file = None,
                 assert(vector.pop(-1)==']'),'end of vector marker not found'
                 feats.append(np.array([vector]).astype('float'))
                 times.append(np.array([0.1]))   
-                print
     with h5f.Writer(output_name) as writer:   
         data = h5f.Data(utts, times, feats, check=True)
         writer.write(data, 'features')
+    print('done')
 
 #Test Params
 #input_folder = '/mnt/d/files/research/projects/lf/ivector/data'
 #output_name = 'test'
 
-input_folder = ('/fs/clip-realspeech/projects/lfe/models/ivector/'+ train_corpus +
-    + '/train_and_decode/exp/ivectors_test_'+test_corpus+'WSJ'   )     
-output_name = train_corpus+'_'+test_corpus+'.ivector'
+input_folder = ('/fs/clip-realspeech/projects/lfe/models/ivector/'+ train_corpus 
+    + '/train_and_decode/exp/ivectors_test_'+test_corpus)     
+output_name = train_corpus+'8000_'+test_corpus+'_new'
 
 generate_utterance_item(input_folder, output_name+'.ivector')

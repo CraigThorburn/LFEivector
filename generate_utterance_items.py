@@ -6,10 +6,10 @@ Created on Mon May 6 15:05:00 2019
 @author: Craig Thorburn
 """
 ## PARAMETERS
-corpus = 'WSJ'
-matched = 'GPJ'
-min_length = 2
-max_length = 5
+corpus = 'BUC'
+matched = 'CSJ'
+min_length = 3
+max_length = 100
 allowed_overlap = 20
 max_attempts = 1
 sample_size = 20
@@ -60,9 +60,9 @@ def generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file
         onset = float(0)
         offset = float(segment[3]) - float(segment[2])
         if offset < min_length:
-            next
+            continue
         elif offset > max_length:
-            next
+            continue
         speaker = utt2spk[segment_name]
         segment_text = [w for w in word_tokenize(text[segment_name].lower()) if w not in functionwords]
         if speaker in speaker_dict.keys():
@@ -121,7 +121,8 @@ def generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file
     print('total '+str(len(speaker_dict.keys()))+' speakers for corpus')   
     if err > 0:
           print(str(err)+' speakers failed')
-    print('average overlap is '+str(float(overlap_total)/(len(speaker_dict.keys())-err)))
+    if rejection:
+        print('average overlap is '+str(float(overlap_total)/(len(speaker_dict.keys())-err)))
     print('done')
             
 # Testing
