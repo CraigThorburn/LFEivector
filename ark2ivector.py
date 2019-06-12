@@ -8,7 +8,9 @@ Created on Mon May 6 15:05:00 2019
 ## PARAMETERS
 train_corpus = 'WSJ'
 test_corpus='WSJ'
-matched = 'GPJ'
+include_ivector = False
+include_matlab = True
+
 
 '''
 
@@ -29,8 +31,9 @@ import h5features as h5f
 import codecs
 import os
 import numpy as np
+import scipy.io as sio
 
-def generate_utterance_item(input_folder, output_name, utt2spk_file = None, 
+def generate_utterance_item(input_folder, output_name, include_ivector = True, utt2spk_file = None, 
                             include_matlab = False):
     """
     """
@@ -41,10 +44,20 @@ def generate_utterance_item(input_folder, output_name, utt2spk_file = None,
             ark_filenames.append(filename)         
 
     print(str(len(ark_filenames))+' ivector .ark files found.')
-    
+
+    if utt2spk_file != None:
+    with codecs.open(utt2spk_file, mode='r', encoding='UTF-8') as inp:
+            lines = inp.read().splitlines()
+        utt2spk={}
+        for l in lines:
+            u = l.split(None, 1)
+            utt2spk[u[0]] = u[1]
+        print('utt2spk file loaded')    
+
     utts=[]
     times=[]
     feats=[]
+    spks=[]
     for f in ark_filenames:
         print('loading '+f)
         
@@ -54,21 +67,32 @@ def generate_utterance_item(input_folder, output_name, utt2spk_file = None,
                 u = l.strip().split(None, 1)
                 vector = u[1].split()
                 utts.append(u[0])
+                if utt2spk != None:
+                    spks.append(utt2spk[u[0]])
                 assert(vector.pop(0)=='['),'start of vector marker not found'
                 assert(vector.pop(-1)==']'),'end of vector marker not found'
                 feats.append(np.array([vector]).astype('float'))
                 times.append(np.array([0.1]))   
                 print
-    with h5f.Writer(output_name) as writer:   
-        data = h5f.Data(utts, times, feats, check=True)
-        writer.write(data, 'features')
+
+    if include_ivector:
+        with h5f.Writer(output_name+'_vectors.ivector') as writer:   
+            data = h5f.Data(utts, times, feats, check=True)
+            writer.write(data, 'features')
+
+    if include_matlab:
+        sio.savemat(output_name+'_vectors.mat', {output_name+'_vectors':feats, output_name+'_utts':utts, 
+            output_name+'_spks':spks})
+
+
 
 #Test Params
 #input_folder = '/mnt/d/files/research/projects/lf/ivector/data'
 #output_name = 'test'
 
-input_folder = ('/fs/clip-realspeech/projects/lfe/models/ivector/'+ train_corpus +
-    + '/train_and_decode/exp/ivectors_test_'+test_corpus+'WSJ'   )     
-output_name = train_corpus+'_'+test_corpus+'.ivector'
+input_folder = '/fs/clip-realspeech/projects/lfe/models/ivector/'+ train_corpus +
+    + '/train_and_decode/exp/ivectors_test_'+test_corpus+'WSJ'
+utt2spk_file = '/fs/clip-realspeech/projects/lfe/models/ivector/' + test_corpus + 'train_and_decode/data/test/utt2spk' 
+output_name = train_corpus+'_'+test_corpus+
 
-generate_utterance_item(input_folder, output_name+'.ivector')
+generate_utterance_item(input_folder, output_name+'.)
