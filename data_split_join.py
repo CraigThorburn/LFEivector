@@ -5,6 +5,9 @@ Created on Wed Jul 31 13:45:01 2019
 @author: craig
 """
 # THIS ONLY WORKS IF THERE IS ONLY ONE SPEAKER PER FILE
+# Run as: python [base data folder] [input folder] [output folder] ['split' OR 'join'] [number]
+# If 'split', number = how many output files should be created from each input
+# If 'join', number = how many input files should be concatenated to form one output
 
 import os
 import codecs
@@ -13,6 +16,7 @@ from shutil import copyfile
 
 if len(sys.argv) !=6:
     print('incorrect arguments')
+    print("Run as: python [base data folder] [input folder] [output folder] ['split' OR 'join'] [number]")
     print(len(sys.argv))
     raise AssertionError
 root = sys.argv[1]
