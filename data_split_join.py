@@ -139,7 +139,7 @@ new_total_utts = len(new_segments)
 if split_join=='join':
     print('joining complete: reduced from '+str(total_utts)+' utterances to '+str(new_total_utts)+' utterances')
 elif split_join == 'split':
-    print('joining complete: increased from '+str(total_utts)+' utterances to '+str(new_total_utts)+' utterances')
+    print('splitting complete: increased from '+str(total_utts)+' utterances to '+str(new_total_utts)+' utterances')
         
 os.chdir('../'+output_folder)         
 print('saving segments file')            
