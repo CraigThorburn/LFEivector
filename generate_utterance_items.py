@@ -6,13 +6,13 @@ Created on Mon May 6 15:05:00 2019
 @author: Craig Thorburn
 """
 ## PARAMETERS
-corpus = 'BUC'
+corpus = 'CGN_spoken'
 matched = 'CSJ'
 min_length = 3
 max_length = 100
 allowed_overlap = 20
 max_attempts = 1
-sample_size = 20
+sample_size = 12
 rejection = False
 
 # CODE
@@ -135,16 +135,16 @@ def generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file
 #                            output_file)
 
 
-input_folder = '/fs/clip-realspeech/corpora/spock-format/' + corpus + '/' + matched + '_matched_data_test/'
+input_folder = '/fs/clip-realspeech/corpora/CGN/data/o_ort/test_join_4'
 output_folder = '/fs/clip-realspeech/projects/lfe/eval/utt_abx/items/'
 if rejection:
     rejection_name = 'rej'
 else:
     rejection_name = 'norej'
 output_file = corpus + '_sample'+str(sample_size)+'_'+rejection_name+'_min'+str(min_length)+'_max'+str(max_length)+'.item'
-segments_file = 'segments.txt'
-text_file = 'text.txt'
-utt2spk_file = 'utt2spk.txt'
+segments_file = 'segments'
+text_file = 'text'
+utt2spk_file = 'utt2spk'
 
 generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file, 
                             output_folder, output_file, 

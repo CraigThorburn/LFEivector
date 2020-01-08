@@ -1,0 +1,120 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jul 31 13:45:01 2019
+
+@author: craig
+"""
+import os
+import codecs
+import gzip
+
+root_dir = '/fs/clip-realspeech/corpora/CGN/CGN_2.0.3/data/annot/text/ort/'
+comp_dir = 'comp-p'
+output_dir='/fs/clip-realspeech/corpora/CGN/data'
+
+#testing
+#text_file = "D:\\files\\research\\projects\\lf\\ivector\\corpora\\CGN\\fn000360.ort.gz"
+#recording_id = 'fn000360'
+
+def generate_segments(recording_id, text_file):
+    with gzip.open(text_file, 'rt', encoding='latin-1') as inp:
+    #with codecs.open(text_file, mode='r') as inp:
+        lines = inp.read().splitlines()
+        text_lines=[]
+        for l in lines:
+           text_lines.append(l)
+    segments = []
+    textfile = []
+    utt2spk = []
+    i = 7
+    utterance_number = 0
+    total_spks = 0
+    while True:
+        try:
+            start = text_lines[i]
+        except IndexError:
+            break
+        if start == '"IntervalTier"':
+            speaker_id = text_lines[i+1].strip('"')
+            utterance_number = 0
+            i+=5
+            total_spks+=1
+            continue
+        elif speaker_id in ['COMMENT','BACKGROUND']:
+            i+=3
+            total_spks-=1
+            continue
+        start = float(start)
+        end = float(text_lines[i+1])
+        text = text_lines[i+2].strip('"')
+        #print(text)
+        if text== '':
+            #print('passed')
+            i+=3
+            continue
+        #a=input('?')
+        segment_id = str(speaker_id) + '-'+str(recording_id)+'-'+str(utterance_number).zfill(4)
+        segments.append([segment_id, recording_id, start, end])
+        textfile.append([segment_id, text])
+        utt2spk.append([segment_id, speaker_id])
+        i+=3
+        utterance_number+=1
+    #print('file: '+recording_id+' complete. Utterances: '+str(len(segments))+
+    #      ' Speakers: '+str(total_spks))
+    return(segments, textfile, utt2spk)
+print('navigating to '+root_dir+comp_dir+os.sep+'nl')   
+os.chdir(root_dir+comp_dir+os.sep+'nl')
+files = os.listdir()
+ort_files = [f for f in files if f[-7:] =='.ort.gz']
+print(str(len(ort_files)) + ' files found')
+segments = []
+text = []
+utt2spk = []
+wav = []
+for ort in ort_files:
+    output = generate_segments(ort[:-7], ort)
+    segments.extend(output[0])
+    text.extend(output[1])
+    utt2spk.extend(output[2])
+    wav.append([ort[:-7], comp_dir+os.sep+ort[:-7]+'.wav'])
+print('segment generation complete')
+print('total segments: '+str(len(segments)))
+
+with codecs.open(output_dir+os.sep+comp_dir+'_segments', mode='w', encoding='UTF-8') as out:
+    for e in segments:
+        out.write(u" ".join([str(f) for f in e]) + u"\n") 
+print('segments file saved')
+
+with codecs.open(output_dir+os.sep+comp_dir+'_text', mode='w', encoding='UTF-8') as out:
+    for e in text:
+        out.write(u" ".join([str(f) for f in e]) + u"\n") 
+print('text file saved')
+
+    
+with codecs.open(output_dir+os.sep+comp_dir+'_utt2spk', mode='w', encoding='UTF-8') as out:
+    for e in utt2spk:
+        out.write(u" ".join([str(f) for f in e]) + u"\n")
+print('utt2spk file saved')
+
+    
+with codecs.open(output_dir+os.sep+comp_dir+'_wav.scp', mode='w', encoding='UTF-8') as out:
+    for e in wav:
+        out.write(u" ".join([str(f) for f in e]) + u"\n") 
+print('wav.scp file saved')
+
+    
+
+        
+            
+
+
+
+
+
+'''
+
+def generate_segments(input_folder):
+    """
+    """
+    os.chdir(input_folder)
+'''
