@@ -5,9 +5,10 @@ Created on Wed Jul 31 13:45:01 2019
 @author: craig
 """
 # THIS ONLY WORKS IF THERE IS ONLY ONE SPEAKER PER FILE
-# Run as: python [base data folder] [input folder] [output folder] ['split' OR 'join'] [number]
+# Run as: python [base data folder] [input folder] [output folder] ['split' OR 'join' OR 'reduce'] [number]
 # If 'split', number = how many output files should be created from each input
 # If 'join', number = how many input files should be concatenated to form one output
+# If 'reduce', number = factor by which to reduced length of each utterance
 
 import os
 import codecs
@@ -16,7 +17,7 @@ from shutil import copyfile
 
 if len(sys.argv) !=6:
     print('incorrect arguments')
-    print("Run as: python [base data folder] [input folder] [output folder] ['split' OR 'join'] [number]")
+    print("Run as: python [base data folder] [input folder] [output folder] ['split' OR 'join' OR 'reduce'] [number]")
     print(len(sys.argv))
     raise AssertionError
 root = sys.argv[1]
@@ -85,6 +86,29 @@ with open('segments', mode = 'r') as inp:
                     new_utt2spk.append([new_utt_id, parsed_utt2spk[utt_id]])
                     new_text.append([new_utt_id, parsed_text[utt_id]])
 
+    if split_join == 'reduce':
+            print('reducing operation')
+            print('warning: text will not be correct for reducing operation')
+
+            for l in lines:
+                item = l.split(' ')
+
+
+                utt_id = item[0]
+                record_id = item[1]
+                start = float(item[2])           
+                end = float(item[3])
+
+
+                new_utt_id = utt_id
+                new_record_id = record_id
+                new_start = start 
+                new_end = start + (end-start)/float(split_join_num)
+
+                new_segments.append([new_utt_id, new_record_id, str(new_start), str(new_end)])
+                new_utt2spk.append([new_utt_id, parsed_utt2spk[utt_id]])
+                new_text.append([new_utt_id, parsed_text[utt_id]])
+
     
     elif split_join == 'join':
             print('joining operation')
@@ -140,6 +164,8 @@ if split_join=='join':
     print('joining complete: reduced from '+str(total_utts)+' utterances to '+str(new_total_utts)+' utterances')
 elif split_join == 'split':
     print('splitting complete: increased from '+str(total_utts)+' utterances to '+str(new_total_utts)+' utterances')
+elif split_join == 'reduce':
+    print('splitting complete: reduced utterance lengths by factor of '+str(split_join_num))
         
 os.chdir('../'+output_folder)         
 print('saving segments file')            
