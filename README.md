@@ -7,10 +7,11 @@ Either split or join segments to form new datset.  Creates entirely new director
 
 Run as: 
 ```
-python [base data folder] [input folder] [output folder] ['split' OR 'join'] [number]
+python [base data folder] [input folder] [output folder] ['split' OR 'join' OR 'reduce'] [number]
 ```
 If 'split', number = how many output files should be created from each input
 If 'join', number = how many input files should be concatenated to form one output
+If 'reduce', number = factor by which to reduced length of each utterance
 
 ## generate_task_utt.py
 
