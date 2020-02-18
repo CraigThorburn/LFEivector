@@ -6,13 +6,13 @@ Created on Mon May 6 15:05:00 2019
 @author: Craig Thorburn
 """
 ## PARAMETERS
-corpus = 'CGN_spoken'
+corpus = 'ESPesp'
 matched = 'CSJ'
 min_length = 3
 max_length = 100
 allowed_overlap = 20
 max_attempts = 1
-sample_size = 12
+sample_size = 20
 rejection = False
 
 # CODE
@@ -135,7 +135,7 @@ def generate_utterance_item(input_folder, segments_file, text_file, utt2spk_file
 #                            output_file)
 
 
-input_folder = '/fs/clip-realspeech/corpora/CGN/data/o_ort/test_join_4'
+input_folder = '/fs/clip-realspeech/projects/lfe/models/ivector/EJ_ESP/decode/data/esp_test'
 output_folder = '/fs/clip-realspeech/projects/lfe/eval/utt_abx/items/'
 if rejection:
     rejection_name = 'rej'

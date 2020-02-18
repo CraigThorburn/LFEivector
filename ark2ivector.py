@@ -21,6 +21,14 @@ include_matlab = False
 
       (The order of utterances and frames should match across all lists and arrays. Frames should be given in increasing order of the timestamps)
 
+	Run as: python [input folder] [output name] [include ivector] [include matlab] [OPTIONAL: utt2spk file]")
+	input folder: location of input ark folder
+	output name: path to and name of output file
+	include ivector: whether to save ivector file
+	include matlab: whether to include matlab file
+	utt2spk: optional if including matlab - location of utt2spk file
+    		
+
 '''
 
       
@@ -30,6 +38,7 @@ include_matlab = False
 import h5features as h5f
 import codecs
 import os
+import sys
 import numpy as np
 import scipy.io as sio
 
@@ -83,14 +92,28 @@ def generate_utterance_item(input_folder, output_name, include_ivector = True, u
         sio.savemat(output_name+'_vectors.mat', {output_name+'_vectors':feats, output_name+'_utts':utts, 
             output_name+'_spks':spks})
 
+if len(sys.argv) <= 4:
+    print('incorrect arguments')
+    print("Run as: python [input folder] [output name] [include ivector] [include matlab] [OPTIONAL: utt2spk file]")
+    print(len(sys.argv))
+    raise AssertionError
 
+input_folder = sys.argv[1]
+output_name = sys.argv[2]
+include_ivector = bool(sys.argv[3])
+include_matlab = bool(sys.argv[4])
+
+
+#if include_matlab:
+#	utt2spk_file = sys.argv[5]
+utt2spk_file=''
 
 #Test Params
 #input_folder = '/mnt/d/files/research/projects/lf/ivector/data'
 #output_name = 'test'
 
-input_folder = '/fs/clip-realspeech/projects/lfe/models/ivector/'+ train_corpus + '/train_and_decode/exp/ivectors_join_4_test_join_4_'+test_corpus
-utt2spk_file = '/fs/clip-realspeech/projects/lfe/models/ivector/' + test_corpus + '/train_and_decode/data/test/utt2spk' 
-output_name = train_corpus+'_'+test_corpus
+#input_folder = '/fs/clip-realspeech/projects/lfe/models/ivector/'+ train_corpus + '/train_and_decode/exp/ivectors_join_4_test_join_4_'+test_corpus
+#utt2spk_file = '/fs/clip-realspeech/projects/lfe/models/ivector/' + test_corpus + '/train_and_decode/data/test/utt2spk' 
+#output_name = train_corpus+'_'+test_corpus
 
 generate_utterance_item(input_folder, output_name, include_ivector, utt2spk_file, include_matlab)
